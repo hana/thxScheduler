@@ -40,7 +40,7 @@ namespace thx {
 
     public:
         template<typename Duration, typename F>
-        void delay(const std::chrono::duration<Duration>& delay_time, F&& func) {
+        void schedule(const Duration& delay_time, F&& func) {
             const auto now = clock::now();
             const auto scheduled_time = now + delay_time;
 
@@ -51,7 +51,7 @@ namespace thx {
         };
 
         template<typename F>
-        void add(clock::time_point time, F&& func) {            
+        void schedule(clock::time_point time, F&& func) {            
             auto p = std::make_unique<event<F>>(std::forward<F>(func));
             p->schedule = time;
             calender.emplace(std::move(p));

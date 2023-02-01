@@ -7,27 +7,29 @@ Schedule function and invoke later.
 #include "thxScheduler.hpp"
 
 int main() {    
-    thx::scheduler sch;
-        
-    sch.delay(std::chrono::seconds(1), []() {
+    auto& sch = thx::scheduler::get_instance();
+
+    std::cout << "hello" << std::endl;
+
+    sch.schedule(std::chrono::seconds(1), []() {   // specify duration until the event invocation
         std::cout << "1" << std::endl;
     });
 
-    sch.delay(std::chrono::seconds(2), []() {
+    sch.schedule(std::chrono::seconds(2), []() {
         std::cout << "2" << std::endl;
     });
 
-    sch.delay(std::chrono::seconds(3), []() {
+    sch.schedule(std::chrono::seconds(3), []() {
         std::cout << "3" << std::endl;
     });
 
     const auto tp = sch.now() + std::chrono::seconds(4);
 
-    sch.add(tp, []() {
+    sch.schedule(tp, []() { // specify specific time point.
         std::cout << "4" << std::endl;
     });
 
-    while (true) {
+    while (sch.size()) {
         sch();
     }
 
