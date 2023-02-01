@@ -14,7 +14,7 @@
 #include <unordered_set>
 
 namespace thx {
-    class scheduler {
+    class Scheduler {
     public:
         using clock = std::chrono::system_clock;
         struct base {
@@ -100,5 +100,21 @@ namespace thx {
         }
 
     }; 
+
+    class scheduler {
+        public: 
+            static auto& get_instance() {
+                static Scheduler instance;
+                return instance;
+            }
+
+        private:
+            scheduler() = default;
+            ~scheduler() = default;
+            scheduler(const scheduler&) = delete;
+            scheduler(scheduler&&) = delete;
+            scheduler& operator=(const scheduler&) = delete;
+            scheduler& operator=(scheduler&&) = delete;
+    };
 }
 
