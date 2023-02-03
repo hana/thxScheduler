@@ -58,6 +58,8 @@ namespace thx {
         }
 
         void operator()() {
+            if(calender.empty()) return;
+            
             const auto now = clock::now();
             std::deque<Calender::iterator> remove_list;
 
