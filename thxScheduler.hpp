@@ -13,6 +13,12 @@
 #include <memory>
 #include <unordered_set>
 
+#if defined(ESP32)
+#include <esp_attr.h>
+#else 
+#define IRAM_ATTR
+#endif
+
 namespace thx {
     class Scheduler {
     public:
@@ -27,14 +33,13 @@ namespace thx {
         struct event : public base {
             Func func;
             event(Func&& f) : func(f) {};
-            virtual void operator()() override {
+            virtual void IRAM_ATTR operator()() override {
                 func();
             }          
             virtual ~event(){};  
         };
 
     private:
-        // using Calender = std::map<clock::time_point, std::function<void(void)>>;
         using Calender = std::unordered_set<std::unique_ptr<base>>;
         Calender calender;
 
@@ -57,25 +62,7 @@ namespace thx {
             calender.emplace(std::move(p));
         }
 
-        void operator()() {
-            if(calender.empty()) return;
-            
-            const auto now = clock::now();
-            std::deque<Calender::iterator> remove_list;
-
-            for(auto itr = calender.begin(), end = calender.end(); itr != end; ++itr) {
-                auto& event = *itr->get();
-                
-                if (event.schedule < now) {
-                    event();
-                    remove_list.emplace_back(itr);
-                }
-            }
-
-            for(const auto& elm : remove_list) {
-                calender.erase(elm);
-            }
-        }
+        void IRAM_ATTR operator()();
 
         auto empty() const {
             return calender.empty();
@@ -100,7 +87,6 @@ namespace thx {
         static auto us_from_now(const std::size_t us) {
             return clock::now() + std::chrono::microseconds(us);
         }
-
     }; 
 
     class scheduler {
@@ -119,4 +105,3 @@ namespace thx {
             scheduler& operator=(scheduler&&) = delete;
     };
 }
-
